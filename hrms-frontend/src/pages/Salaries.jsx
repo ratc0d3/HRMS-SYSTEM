@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import api from '../api';
 import { formatCurrency } from '../utils/currency';
+import { useToast } from '../components/ui/Toast';
 
 function Salaries() {
+  const { showToast } = useToast();
   const [salaries, setSalaries] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -85,12 +87,18 @@ function Salaries() {
       await api.post('/salaries', formData);
       setShowModal(false);
       fetchSalaries();
+      showToast(
+        getEmployeeSalary(selectedEmployeeId)
+          ? 'Salary updated successfully!'
+          : 'Salary set successfully!',
+        'success'
+      );
     } catch (err) {
       if (err.response?.status === 422) {
         setFormErrors(err.response.data.errors || {});
       } else {
         const message = err.response?.data?.message || 'Failed to save salary';
-        alert(message);
+        showToast(message, 'error');
       }
     } finally {
       setSubmitting(false);

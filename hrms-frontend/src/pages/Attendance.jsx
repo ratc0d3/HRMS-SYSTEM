@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import api from "../api";
+import { useToast } from "../components/ui/Toast";
+import { useConfirm } from "../hooks/useConfirm";
 
 function Attendance() {
+  const { showToast } = useToast();
+  const { confirm } = useConfirm();
   const [attendance, setAttendance] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -70,11 +74,12 @@ function Attendance() {
       await api.post("/attendance", formData);
       setShowModal(false);
       fetchAttendance();
+      showToast("Attendance recorded successfully!", "success");
     } catch (err) {
       if (err.response?.status === 422) {
         setFormErrors(err.response.data.errors || {});
       } else {
-        alert("Failed to save attendance");
+        showToast("Failed to save attendance", "error");
       }
     } finally {
       setSubmitting(false);
@@ -82,12 +87,21 @@ function Attendance() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this record?")) return;
+    const confirmed = await confirm({
+      title: "Delete Attendance Record?",
+      message: "Are you sure you want to delete this attendance record? This action cannot be undone.",
+      variant: "danger",
+      confirmLabel: "Delete"
+    });
+    
+    if (!confirmed) return;
+    
     try {
       await api.delete(`/attendance/${id}`);
       fetchAttendance();
+      showToast("Attendance record deleted successfully!", "success");
     } catch {
-      alert("Failed to delete attendance record");
+      showToast("Failed to delete attendance record", "error");
     }
   };
 

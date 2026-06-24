@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import api from '../api';
+import { useToast } from '../components/ui/Toast';
 
 function Employees() {
+  const { showToast } = useToast();
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -92,11 +94,17 @@ function Employees() {
       }
       setShowModal(false);
       fetchEmployees();
+      showToast(
+        selectedEmployee
+          ? 'Employee updated successfully!'
+          : 'Employee created successfully!',
+        'success'
+      );
     } catch (err) {
       if (err.response?.status === 422) {
         setFormErrors(err.response.data.errors || {});
       } else {
-        alert('Failed to save employee');
+        showToast('Failed to save employee', 'error');
       }
     } finally {
       setSubmitting(false);
@@ -108,8 +116,9 @@ function Employees() {
       await api.delete(`/employees/${selectedEmployee.id}`);
       setShowDeleteConfirm(false);
       fetchEmployees();
+      showToast('Employee deleted successfully!', 'success');
     } catch {
-      alert('Failed to delete employee');
+      showToast('Failed to delete employee', 'error');
     }
   };
 

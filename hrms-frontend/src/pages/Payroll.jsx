@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import api from "../api";
 import { formatCurrency } from "../utils/currency";
+import { useToast } from "../components/ui/Toast";
 
 function Payroll() {
+  const { showToast } = useToast();
   const [payroll, setPayroll] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -71,12 +73,12 @@ function Payroll() {
       await api.post("/payroll/generate", payload);
       setShowModal(false);
       fetchPayroll();
-      alert("Payroll generated successfully!");
+      showToast("Payroll generated successfully!", "success");
     } catch (err) {
       if (err.response?.status === 422) {
         setFormErrors(err.response.data.errors || {});
       } else {
-        alert(err.response?.data?.message || "Failed to generate payroll");
+        showToast(err.response?.data?.message || "Failed to generate payroll", "error");
       }
     } finally {
       setSubmitting(false);
