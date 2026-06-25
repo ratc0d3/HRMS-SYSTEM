@@ -1,9 +1,22 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import api from '../api';
 import { useToast } from '../components/ui/Toast';
 
+// Format date to Month Day, Year (e.g., June 25, 2026)
+function formatDate(dateString) {
+  if (!dateString) return '—';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+
 function Employees() {
   const { showToast } = useToast();
+  const location = useLocation();
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -24,8 +37,9 @@ function Employees() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
     fetchEmployees();
-  }, []);
+  }, [location.key]);
 
   async function fetchEmployees() {
     try {
@@ -190,11 +204,13 @@ function Employees() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Code</th>
-                <th>Name</th>
+                <th>Employee ID</th>
+                <th>Full Name</th>
                 <th>Email</th>
-                <th>Department</th>
+                <th>Contact Number</th>
                 <th>Position</th>
+                <th>Department</th>
+                <th>Date Hired</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>
@@ -202,7 +218,7 @@ function Employees() {
             <tbody>
               {filteredEmployees.length === 0 ? (
                 <tr>
-                  <td colSpan="7">
+                  <td colSpan="9">
                     <div className="empty-state">
                       <p>No employees found</p>
                     </div>
@@ -214,8 +230,10 @@ function Employees() {
                     <td>{employee.employee_code}</td>
                     <td>{employee.full_name}</td>
                     <td>{employee.email}</td>
-                    <td>{employee.department || '—'}</td>
+                    <td>{employee.contact_number || '—'}</td>
                     <td>{employee.position || '—'}</td>
+                    <td>{employee.department || '—'}</td>
+                    <td>{formatDate(employee.date_hired)}</td>
                     <td>{getStatusBadge(employee.employment_status)}</td>
                     <td>
                       <div className="actions">

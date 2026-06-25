@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import api from '../api';
 import { formatCurrency } from '../utils/currency';
 
@@ -7,12 +7,15 @@ function Dashboard() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const location = useLocation();
 
+  // Refetch dashboard data when navigating to this page
   useEffect(() => {
     fetchDashboard();
-  }, []);
+  }, [location.key]);
 
   async function fetchDashboard() {
+    setLoading(true);
     try {
       const response = await api.get('/dashboard');
       setStats(response.data.data);

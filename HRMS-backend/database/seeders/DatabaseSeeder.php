@@ -6,14 +6,11 @@ use App\Models\Attendance;
 use App\Models\Employee;
 use App\Models\Salary;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     /**
      * Seed the application's database.
      */
@@ -110,11 +107,19 @@ class DatabaseSeeder extends Seeder
             );
         }
 
-        // Create salaries
+        // Create salaries with calculated net_salary
         foreach ($employees as $index => $employee) {
+            $salaryData = $salariesData[$index];
+            $netSalary = $salaryData['basic_salary'] + $salaryData['allowance'] - $salaryData['deductions'];
+            
             Salary::updateOrCreate(
                 ['employee_id' => $employee->id],
-                $salariesData[$index]
+                [
+                    'basic_salary' => $salaryData['basic_salary'],
+                    'allowance' => $salaryData['allowance'],
+                    'deductions' => $salaryData['deductions'],
+                    'net_salary' => $netSalary,
+                ]
             );
         }
 

@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import api from '../api';
 import { formatCurrency } from '../utils/currency';
 import { useToast } from '../components/ui/Toast';
 
 function Salaries() {
   const { showToast } = useToast();
+  const location = useLocation();
   const [salaries, setSalaries] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,8 +22,9 @@ function Salaries() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
     Promise.all([fetchSalaries(), fetchEmployees()]);
-  }, []);
+  }, [location.key]);
 
   async function fetchSalaries() {
     try {

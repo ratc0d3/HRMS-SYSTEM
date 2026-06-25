@@ -23,9 +23,9 @@ class DashboardController extends Controller
         $onLeaveEmployees = Employee::where('employment_status', 'On Leave')->count();
         $resignedEmployees = Employee::where('employment_status', 'Resigned')->count();
 
-        // Total monthly payroll (sum of net_salary from salaries for Active employees)
+        // Total monthly payroll (sum of net_salary from salaries for Active and On Leave employees)
         $totalMonthlyPayroll = Salary::whereHas('employee', function ($q) {
-            $q->where('employment_status', 'Active');
+            $q->whereIn('employment_status', ['Active', 'On Leave']);
         })->sum('net_salary');
 
         // Attendance today breakdown
